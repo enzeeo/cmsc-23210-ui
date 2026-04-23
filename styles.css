@@ -1,6 +1,6 @@
 :root {
-  --blur-background-image: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%);
   --card-background-color: rgba(255, 255, 255, 0.85);
+  --overlay-background-color: rgba(0, 0, 0, 0.28);
   --spacing-medium: 1rem;
   --spacing-large: 1.5rem;
   --corner-radius: 12px;
@@ -15,15 +15,23 @@ body {
   font-family: Arial, sans-serif;
   min-height: 100vh;
   color: #222222;
+  position: relative;
+  overflow: hidden;
 }
 
-body::before {
-  content: "";
+.background-video {
   position: fixed;
   inset: 0;
-  background: var(--blur-background-image);
-  filter: blur(10px);
-  transform: scale(1.1);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.background-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-background-color);
   z-index: -1;
 }
 
@@ -37,7 +45,7 @@ body::before {
 
 .content-card {
   width: 100%;
-  max-width: 700px;
+  max-width: 960px;
   background: var(--card-background-color);
   padding: var(--spacing-large);
   border-radius: var(--corner-radius);
@@ -52,7 +60,8 @@ body::before {
   border: 1px solid #c9c9c9;
   border-radius: 8px;
   padding: var(--spacing-medium);
-  height: 220px;
+  min-height: 420px;
+  max-height: 65vh;
   overflow-y: auto;
   background-color: #ffffff;
 }
