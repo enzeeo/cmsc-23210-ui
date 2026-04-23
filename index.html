@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms and Conditions</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-wrapper">
+      <section class="content-card">
+        <h1>Terms and Conditions</h1>
+        <p class="helper-text">Please read the terms and conditions below before you continue.</p>
+
+        <div id="termsContainer" class="terms-container" aria-label="Terms and conditions text" tabindex="0">
+          <h2>Placeholder Terms and Conditions</h2>
+          <p>
+            This is placeholder text for the terms and conditions document. A PDF version
+            will be added later. Please scroll all the way to the bottom before entering your
+            name and selecting Accept or Reject.
+          </p>
+          <p>
+            By continuing, you acknowledge that this example page records exactly what you
+            type in the name field, which button you press, and the time of your action.
+          </p>
+          <p>
+            Placeholder section 1: You agree to review updates when available.
+            Placeholder section 2: You understand this page is for demonstration.
+            Placeholder section 3: You understand tracking information is collected.
+            Placeholder section 4: You confirm that you may continue to the next page.
+          </p>
+          <p>
+            End of placeholder terms and conditions.
+          </p>
+        </div>
+
+        <form id="consentForm" class="form-layout">
+          <label for="nameInput">Your name</label>
+          <input
+            id="nameInput"
+            name="nameInput"
+            type="text"
+            placeholder="Enter your name"
+            disabled
+            required
+          />
+
+          <div class="button-group">
+            <button id="acceptButton" type="button" disabled>Accept</button>
+            <button id="rejectButton" type="button" disabled>Reject</button>
+          </div>
+        </form>
+
+        <p id="statusMessage" class="status-message" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
