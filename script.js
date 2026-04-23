@@ -1,4 +1,4 @@
-const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/PLACEHOLDER/exec";
+const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyvP52mtJ8PRvbSj2yldQWy6eIUzoSrlTm4DKutetUIeg9rm7I7p6Dz4j2b6EPPIvh6jQ/exec";
 const SCROLL_TOLERANCE_IN_PIXELS = 2;
 
 function getElements() {
@@ -41,12 +41,15 @@ function buildTrackingPayload(typedName, selectedAction) {
 }
 
 async function sendTrackingData(payload) {
+  const formData = new URLSearchParams();
+
+  formData.append("typedName", payload.typedName);
+  formData.append("selectedAction", payload.selectedAction);
+  formData.append("pressedAtIsoTimestamp", payload.pressedAtIsoTimestamp);
+
   await fetch(TRACKING_ENDPOINT_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
+    body: formData
   });
 }
 
