@@ -337,35 +337,68 @@ body {
 
 .content-card {
   width: 100%;
-  max-width: 960px;
+  max-width: 900px;
   background: var(--card-background-color);
   padding: var(--spacing-large);
   border-radius: var(--corner-radius);
   border: 1px solid var(--card-border-color);
   box-shadow: 0 16px 42px var(--card-shadow-color);
   backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.terms-title-bar {
+  display: flex;
+  align-items: center;
+  min-height: 4.25rem;
+  margin-top: calc(-1 * var(--spacing-large));
+  margin-left: calc(-1 * var(--spacing-large));
+  margin-right: calc(-1 * var(--spacing-large));
+  margin-bottom: 0;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid rgba(57, 72, 102, 0.2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(237, 242, 252, 0.9) 100%);
+}
+
+.terms-title-bar h1 {
+  margin: 0;
+  font-size: 1.35rem;
 }
 
 .helper-text {
+  margin-top: 0;
   margin-bottom: var(--spacing-medium);
   color: var(--muted-text-color);
 }
 
 .terms-container {
-  border: 1px solid var(--field-border-color);
-  border-radius: 8px;
-  padding: var(--spacing-medium);
-  min-height: 420px;
-  max-height: 65vh;
-  overflow-y: auto;
-  background-color: rgba(255, 255, 255, 0.92);
+  width: auto;
+  margin-left: calc(-1 * var(--spacing-large));
+  margin-right: calc(-1 * var(--spacing-large));
+  height: calc(62vh - 4.25rem);
+  min-height: calc(396px - 4.25rem);
+  border-bottom: 1px solid rgba(57, 72, 102, 0.2);
+  background-color: rgba(255, 255, 255, 0.96);
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.terms-document-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  overflow: hidden;
 }
 
 .form-layout {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: var(--spacing-medium);
+}
+
+.consent-section {
+  padding-top: var(--spacing-medium);
 }
 
 input[type="text"] {
@@ -426,6 +459,31 @@ button:disabled {
 .status-message {
   min-height: 1.25rem;
   margin-top: 0.5rem;
+}
+
+@media (max-width: 720px) {
+  .terms-title-bar {
+    margin-top: -1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 0 1rem;
+  }
+
+  .terms-container {
+    width: auto;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    height: calc(58vh - 4.25rem);
+    min-height: calc(420px - 4.25rem);
+  }
+
+  .consent-section {
+    padding-top: 1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
 }
 
 .second-page {

@@ -225,49 +225,40 @@
 
     <main class="page-wrapper">
       <section class="content-card">
-        <h1>Terms and Conditions</h1>
-        <p class="helper-text">Please read the terms and conditions below before you continue.</p>
-
-        <div id="termsContainer" class="terms-container" aria-label="Terms and conditions text" tabindex="0">
-          <h2>Placeholder Terms and Conditions</h2>
-          <p>
-            This is placeholder text for the terms and conditions document. A PDF version
-            will be added later. Please scroll all the way to the bottom before entering your
-            name and selecting Accept or Reject.
-          </p>
-          <p>
-            By continuing, you acknowledge that this example page records exactly what you
-            type in the name field, which button you press, and the time of your action.
-          </p>
-          <p>
-            Placeholder section 1: You agree to review updates when available.
-            Placeholder section 2: You understand this page is for demonstration.
-            Placeholder section 3: You understand tracking information is collected.
-            Placeholder section 4: You confirm that you may continue to the next page.
-          </p>
-          <p>
-            End of placeholder terms and conditions.
-          </p>
+        <div class="terms-title-bar">
+          <h1>Terms and Conditions</h1>
         </div>
 
-        <form id="consentForm" class="form-layout">
-          <label for="nameInput">Your name</label>
-          <input
-            id="nameInput"
-            name="nameInput"
-            type="text"
-            placeholder="Enter your name"
-            disabled
-            required
-          />
+        <div id="termsContainer" class="terms-container" aria-label="Terms and conditions document" tabindex="0">
+          <iframe
+            id="termsDocumentFrame"
+            class="terms-document-frame"
+            title="Terms and conditions document"
+          ></iframe>
+        </div>
 
-          <div class="button-group">
-            <button id="acceptButton" type="button" disabled>Accept</button>
-            <button id="rejectButton" type="button" disabled>Reject</button>
-          </div>
-        </form>
+        <div class="consent-section">
+          <p class="helper-text">Read the document above, then enter your name and choose Accept or Reject.</p>
 
-        <p id="statusMessage" class="status-message" aria-live="polite"></p>
+          <form id="consentForm" class="form-layout">
+            <label for="nameInput">Your name</label>
+            <input
+              id="nameInput"
+              name="nameInput"
+              type="text"
+              placeholder="Enter your name"
+              disabled
+              required
+            />
+
+            <div class="button-group">
+              <button id="acceptButton" type="button" disabled>Accept</button>
+              <button id="rejectButton" type="button" disabled>Reject</button>
+            </div>
+          </form>
+
+          <p id="statusMessage" class="status-message" aria-live="polite"></p>
+        </div>
       </section>
     </main>
 
