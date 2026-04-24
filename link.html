@@ -7,18 +7,221 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="background-frame-wrapper" aria-hidden="true">
-      <iframe
-        class="background-frame"
-        src="https://codepen.io/konstantindenerz/full/vYMPZKz"
-        title="Animated cosmic background"
-        tabindex="-1"
-      ></iframe>
-      <div class="background-top-mask"></div>
-      <div class="background-top-right-mask"></div>
-      <div class="background-bottom-mask"></div>
-      <div class="background-frame-overlay"></div>
+    <div id="cosmicBackground" class="cosmic-background" aria-hidden="true">
+      <div class="stars"></div>
+      <div class="stars-highlights"></div>
+      <div class="planets" data-count="5"></div>
+      <div class="planets-2" data-count="50"></div>
+      <div class="startails" data-count="201"></div>
+      <div class="scene">
+        <div class="sun"></div>
+        <div class="planet"></div>
+        <div class="planet-2"></div>
+        <div class="planet-3"></div>
+        <div class="planet-4"></div>
+        <div class="planet-6"></div>
+        <div class="planet-5">
+          <div class="structure-1"></div>
+          <div class="structure-2"></div>
+          <div class="structure-3"></div>
+        </div>
+        <div class="human">
+          <div class="neck"></div>
+          <div class="head"></div>
+          <div class="body">
+            <div class="shoulder"></div>
+            <div class="back"></div>
+            <div class="hip">
+              <div class="center"></div>
+            </div>
+          </div>
+          <div class="leg left">
+            <div class="knee"></div>
+            <div class="lower"></div>
+          </div>
+          <div class="leg right">
+            <div class="knee"></div>
+            <div class="lower"></div>
+          </div>
+          <div class="arm left">
+            <div class="hand"></div>
+          </div>
+          <div class="arm right">
+            <div class="hand"></div>
+          </div>
+        </div>
+        <div class="human shadow">
+          <div class="neck"></div>
+          <div class="head"></div>
+          <div class="body">
+            <div class="shoulder"></div>
+            <div class="back"></div>
+            <div class="hip">
+              <div class="center"></div>
+            </div>
+          </div>
+          <div class="leg left">
+            <div class="knee"></div>
+            <div class="lower"></div>
+          </div>
+          <div class="leg right">
+            <div class="knee"></div>
+            <div class="lower"></div>
+          </div>
+          <div class="arm left">
+            <div class="hand"></div>
+          </div>
+          <div class="arm right">
+            <div class="hand"></div>
+          </div>
+        </div>
+        <div class="cuboid">
+          <div class="top">
+            <div class="outline"></div>
+            <div class="outline"></div>
+            <div class="outline"></div>
+            <div class="outline"></div>
+          </div>
+          <div class="front"></div>
+          <div class="right"></div>
+        </div>
+      </div>
+      <div class="highlight"></div>
+      <div class="color-filter"></div>
+      <svg class="cosmic-filter" xmlns="http://www.w3.org/2000/svg">
+        <filter id="stars">
+          <feTurbulence baseFrequency="0.275"></feTurbulence>
+          <feColorMatrix
+            values="0 0 0 9 -5
+                    0 0 0 9 -4
+                    0 0 0 9 -5
+                    0 0 0 0 1"
+          ></feColorMatrix>
+        </filter>
+        <filter id="stars-highlights">
+          <feTurbulence baseFrequency="0.675"></feTurbulence>
+          <feColorMatrix
+            values="0 0 0 9 -5
+                    0 0 0 9 -4
+                    0 0 0 9 -5
+                    0 0 0 0 1"
+          ></feColorMatrix>
+        </filter>
+        <filter id="planet-structure">
+          <feTurbulence baseFrequency="0.195"></feTurbulence>
+          <feColorMatrix
+            values="0 0 0 1 -9
+                    0 0 0 9 -1.5
+                    0 0 0 2 -6
+                    0 0 0 0 1"
+          ></feColorMatrix>
+        </filter>
+      </svg>
     </div>
+
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="site-header-left">
+          <details class="mobile-navigation">
+            <summary class="mobile-navigation-toggle" aria-label="Open navigation menu">
+              <span></span>
+              <span></span>
+              <span></span>
+            </summary>
+            <div class="mobile-navigation-panel">
+              <a href="#" class="mobile-navigation-link">Home</a>
+
+              <div class="mobile-navigation-section">
+                <p class="mobile-navigation-heading">Features</p>
+                <a href="#" class="mobile-navigation-link">Components</a>
+                <a href="#" class="mobile-navigation-link">Documentation</a>
+                <a href="#" class="mobile-navigation-link">Templates</a>
+              </div>
+
+              <div class="mobile-navigation-section">
+                <p class="mobile-navigation-heading">Pricing</p>
+                <a href="#" class="mobile-navigation-link">Product A</a>
+                <a href="#" class="mobile-navigation-link">Product B</a>
+                <a href="#" class="mobile-navigation-link">Product C</a>
+                <a href="#" class="mobile-navigation-link">Product D</a>
+              </div>
+
+              <div class="mobile-navigation-section">
+                <p class="mobile-navigation-heading">About</p>
+                <a href="#" class="mobile-navigation-link">Getting Started</a>
+                <a href="#" class="mobile-navigation-link">Tutorials</a>
+                <a href="#" class="mobile-navigation-link">About Us</a>
+              </div>
+            </div>
+          </details>
+
+          <a href="#" class="site-logo">Logo</a>
+
+          <nav class="desktop-navigation" aria-label="Primary navigation">
+            <a href="#" class="navigation-link">Home</a>
+
+            <details class="navigation-dropdown">
+              <summary class="navigation-trigger">Features</summary>
+              <div class="navigation-panel navigation-panel-description">
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Components</span>
+                  <span class="navigation-card-description">Browse all components in the library.</span>
+                </a>
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Documentation</span>
+                  <span class="navigation-card-description">Learn how to use the library.</span>
+                </a>
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Templates</span>
+                  <span class="navigation-card-description">Pre-built layouts for common use cases.</span>
+                </a>
+              </div>
+            </details>
+
+            <details class="navigation-dropdown">
+              <summary class="navigation-trigger">Pricing</summary>
+              <div class="navigation-panel navigation-panel-simple">
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Product A</span>
+                </a>
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Product B</span>
+                </a>
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Product C</span>
+                </a>
+                <a href="#" class="navigation-card">
+                  <span class="navigation-card-title">Product D</span>
+                </a>
+              </div>
+            </details>
+
+            <details class="navigation-dropdown">
+              <summary class="navigation-trigger">About</summary>
+              <div class="navigation-panel navigation-panel-icon">
+                <a href="#" class="navigation-card navigation-card-icon">
+                  <span class="navigation-card-symbol">📘</span>
+                  <span class="navigation-card-title">Getting Started</span>
+                </a>
+                <a href="#" class="navigation-card navigation-card-icon">
+                  <span class="navigation-card-symbol">🛟</span>
+                  <span class="navigation-card-title">Tutorials</span>
+                </a>
+                <a href="#" class="navigation-card navigation-card-icon">
+                  <span class="navigation-card-symbol">ℹ️</span>
+                  <span class="navigation-card-title">About Us</span>
+                </a>
+              </div>
+            </details>
+          </nav>
+        </div>
+
+        <div class="site-header-right">
+          <a href="#" class="header-action header-action-secondary">Sign In</a>
+          <a href="#" class="header-action header-action-primary">Get Started</a>
+        </div>
+      </div>
+    </header>
 
     <main class="page-wrapper">
       <section class="content-card second-page">
@@ -29,5 +232,7 @@
         </a>
       </section>
     </main>
+
+    <script src="script.js"></script>
   </body>
 </html>

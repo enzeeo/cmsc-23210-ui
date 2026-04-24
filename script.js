@@ -1,8 +1,12 @@
 const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyvP52mtJ8PRvbSj2yldQWy6eIUzoSrlTm4DKutetUIeg9rm7I7p6Dz4j2b6EPPIvh6jQ/exec";
 const SCROLL_TOLERANCE_IN_PIXELS = 2;
+const SMALL_PLANET_LAYER_COUNT = 5;
+const DUST_PLANET_LAYER_COUNT = 50;
+const STAR_TAIL_COUNT = 201;
 
 function getElements() {
   return {
+    cosmicBackground: document.getElementById("cosmicBackground"),
     termsContainer: document.getElementById("termsContainer"),
     nameInput: document.getElementById("nameInput"),
     acceptButton: document.getElementById("acceptButton"),
@@ -30,6 +34,49 @@ function enableConsentControls(elements) {
 
 function showMessage(elements, messageText) {
   elements.statusMessage.textContent = messageText;
+}
+
+function createBackgroundParticle() {
+  const particleElement = document.createElement("div");
+
+  particleElement.style.setProperty("--position-x", Math.random().toFixed(4));
+  particleElement.style.setProperty("--position-y", Math.random().toFixed(4));
+  particleElement.style.setProperty("--direction-x", (Math.random() - 0.5).toFixed(4));
+  particleElement.style.setProperty("--direction-y", (Math.random() - 0.5).toFixed(4));
+  particleElement.style.setProperty("--delay-factor", Math.random().toFixed(4));
+
+  return particleElement;
+}
+
+function fillBackgroundLayer(layerElement, particleCount) {
+  if (!layerElement) {
+    return;
+  }
+
+  for (let i = 0; i < particleCount; i += 1) {
+    layerElement.appendChild(createBackgroundParticle());
+  }
+}
+
+function initializeCosmicBackground() {
+  const elements = getElements();
+
+  if (!elements.cosmicBackground) {
+    return;
+  }
+
+  fillBackgroundLayer(
+    elements.cosmicBackground.querySelector(".planets"),
+    SMALL_PLANET_LAYER_COUNT
+  );
+  fillBackgroundLayer(
+    elements.cosmicBackground.querySelector(".planets-2"),
+    DUST_PLANET_LAYER_COUNT
+  );
+  fillBackgroundLayer(
+    elements.cosmicBackground.querySelector(".startails"),
+    STAR_TAIL_COUNT
+  );
 }
 
 function buildTrackingPayload(typedName, selectedAction) {
@@ -96,4 +143,5 @@ function initializeTermsPage() {
   });
 }
 
+initializeCosmicBackground();
 initializeTermsPage();
