@@ -535,9 +535,7 @@ button:disabled {
 
 .stars::before {
   filter: url(#stars) saturate(0) brightness(1.5);
-  mix-blend-mode: overlay;
   opacity: 0.15;
-  animation: stars-animation 20s ease-in-out infinite;
 }
 
 .stars-highlights {
@@ -546,9 +544,7 @@ button:disabled {
 
 .stars-highlights::before {
   filter: url(#stars-highlights) saturate(0) brightness(1.5);
-  mix-blend-mode: lighten;
   opacity: 0.2;
-  animation: stars-highlights-animation 20s ease-in-out infinite;
 }
 
 .planets div,
@@ -591,9 +587,8 @@ button:disabled {
   border-radius: 999px;
   opacity: 0;
   background: white;
-  box-shadow: 0 0 0.2vmax white;
+  box-shadow: none;
   translate: calc(var(--position-x) * 100vw) calc(var(--position-y) * 100vh);
-  animation: star-tail-animation 10s calc(var(--delay-factor) * var(--time) * 6) linear infinite;
 }
 
 .scene {
@@ -617,20 +612,6 @@ button:disabled {
   inherits: true;
 }
 
-@keyframes moon-animation {
-  from {
-    --moon-angle: 180deg;
-  }
-
-  50% {
-    --moon-angle: 200deg;
-  }
-
-  to {
-    --moon-angle: 180deg;
-  }
-}
-
 .scene > div {
   position: absolute;
   transform-style: preserve-3d;
@@ -642,10 +623,7 @@ button:disabled {
   border-radius: 50%;
   transform: translateY(-20vmax);
   background: radial-gradient(circle at 60% 60%, #f6f6f6, #e8dbdd, #d9d9d9);
-  box-shadow:
-    0 0 14vmax rgba(255, 255, 255, 0.5),
-    0 0 22vmax rgba(255, 255, 255, 0.05),
-    0 0 42vmax rgba(255, 255, 255, 0.4);
+  box-shadow: none;
 }
 
 .planet {
@@ -657,9 +635,8 @@ button:disabled {
   --translate-y-position: calc(-10vmax + sin(var(--moon-angle)) * var(--orbit-radius));
   --translate-z-position: calc(cos(var(--moon-angle)) * var(--orbit-radius) * -1);
   transform: translateY(var(--translate-y-position)) translateX(10vmax) translateZ(var(--translate-z-position));
-  box-shadow: 0 0 2.5vmax rgba(255, 255, 255, 0.12);
+  box-shadow: none;
   filter: blur(0.05vmax);
-  animation: moon-animation var(--time) ease-in-out infinite;
 }
 
 .planet-2 {
@@ -677,7 +654,6 @@ button:disabled {
   --translate-y-position: calc(-35vmax + sin(var(--moon-angle)) * var(--orbit-radius));
   --translate-z-position: calc(cos(var(--moon-angle)) * var(--orbit-radius));
   transform: translateY(var(--translate-y-position)) translateX(-20vmax) translateZ(var(--translate-z-position));
-  animation: moon-animation var(--time) ease-in-out infinite;
 }
 
 .planet-3 {
@@ -730,7 +706,6 @@ button:disabled {
   --translate-y-position: calc(-35vmax + sin(var(--moon-angle)) * var(--orbit-radius));
   --translate-z-position: calc(cos(var(--moon-angle)) * var(--orbit-radius));
   transform: translateY(var(--translate-y-position)) translateX(18vmax) translateZ(var(--translate-z-position));
-  animation: moon-animation var(--time) ease-in-out infinite;
 }
 
 .planet-5 .structure-1,
@@ -739,8 +714,6 @@ button:disabled {
   position: absolute;
   inset: -20vmax;
   filter: url(#planet-structure) saturate(0);
-  mix-blend-mode: lighten;
-  animation: structure-shift calc(var(--time) * 6) ease-in-out infinite;
 }
 
 .planet-5 .structure-1 {
@@ -783,7 +756,6 @@ button:disabled {
   filter: blur(0.06rem);
   display: grid;
   place-items: center;
-  animation: moon-animation var(--time) ease-in-out infinite;
 }
 
 .planet-6::before,
@@ -802,7 +774,7 @@ button:disabled {
   height: 1vmax;
   border: 1vmax solid #5e5e5e;
   box-shadow: inset 0 0 1rem black;
-  filter: blur(0.5vmax);
+  filter: none;
   mask: radial-gradient(circle at 50% -20%, transparent 30%, black);
 }
 
@@ -851,7 +823,6 @@ button:disabled {
   border-radius: 50%;
   translate: 1.19vmax 0.5vmin;
   rotate: 136deg;
-  animation: head-nose calc(var(--time) / 4) ease-in-out infinite;
 }
 
 .human .head::after {
@@ -863,7 +834,6 @@ button:disabled {
   border-radius: 50%;
   translate: 0.45vmax 0.66vmax;
   rotate: 45deg;
-  animation: head-chin calc(var(--time) / 4) ease-in-out infinite;
 }
 
 .human .neck {
@@ -1115,7 +1085,6 @@ button:disabled {
   border-radius: 27.8%;
   translate: 1.6vmax -3.1vmax;
   rotate: 346deg;
-  animation: arm-right calc(var(--time) / 4) ease-in-out infinite;
 }
 
 .human .arm.right::before,
@@ -1170,7 +1139,6 @@ button:disabled {
   rotate: 359deg;
   filter: invert(0.1);
   z-index: -2;
-  animation: arm-left calc(var(--time) / 4) ease-in-out infinite;
 }
 
 .human .arm.left::before,
@@ -1277,19 +1245,18 @@ button:disabled {
     inset 0 0 0.5vmax rgba(255, 255, 255, 0.4),
     0 0 0.5vmax rgba(255, 255, 255, 0.4);
   translate: calc(-50% + var(--space-half-size)) calc(-50% + var(--space-half-size));
-  animation: outline-animation var(--animation-duration) cubic-bezier(0.68, 0.27, 0.26, 0.91) infinite;
 }
 
 .cuboid .outline:nth-of-type(2) {
-  animation-delay: calc(var(--animation-duration) / 4);
+  opacity: 0.15;
 }
 
 .cuboid .outline:nth-of-type(3) {
-  animation-delay: calc(var(--animation-duration) / 4 * 2);
+  opacity: 0.1;
 }
 
 .cuboid .outline:nth-of-type(4) {
-  animation-delay: calc(var(--animation-duration) / 4 * 3);
+  opacity: 0.05;
 }
 
 .highlight {
@@ -1298,7 +1265,7 @@ button:disabled {
     radial-gradient(40vmin 30vmin at 70% 70%, rgba(255, 255, 255, 0.12), transparent),
     radial-gradient(40vmin 60vmin at 10% 70%, rgba(255, 255, 255, 0.14), transparent),
     radial-gradient(80vmin 100vh at 30% 70%, rgba(255, 255, 255, 0.1), transparent);
-  filter: blur(5vmin);
+  filter: none;
 }
 
 .color-filter {
@@ -1309,72 +1276,7 @@ button:disabled {
     rgb(150 75 152 / 4%),
     rgb(50 56 92 / 27%)
   );
-  mix-blend-mode: color;
-}
-
-@keyframes stars-animation {
-  from {
-    translate: 1vmin 2vmin;
-    rotate: 0deg;
-  }
-
-  30% {
-    translate: 1vmin -2vmin;
-  }
-
-  50% {
-    translate: -1vmin 2vmin;
-    rotate: 10deg;
-  }
-
-  to {
-    translate: 1vmin 2vmin;
-    rotate: 0deg;
-  }
-}
-
-@keyframes stars-highlights-animation {
-  from {
-    translate: 1vmin -2vmin;
-  }
-
-  30% {
-    translate: -1vmin -2vmin;
-  }
-
-  50% {
-    translate: 1vmin -2vmin;
-  }
-
-  to {
-    translate: 1vmin -2vmin;
-  }
-}
-
-@keyframes star-tail-animation {
-  from {
-    opacity: 1;
-    translate: calc(var(--position-x) * 100vw) calc(var(--position-y) * 100vh);
-    scale: 0.9;
-  }
-
-  2% {
-    scale: 0.4;
-  }
-
-  5% {
-    translate: calc(var(--position-x) * 100vw + var(--direction-y) * var(--travel-distance))
-      calc(var(--position-y) * 100vh + var(--direction-x) * var(--travel-distance));
-    opacity: 0;
-    scale: 1;
-  }
-
-  to {
-    translate: calc(var(--position-x) * 100vw + var(--direction-y) * var(--travel-distance))
-      calc(var(--position-y) * 100vh + var(--direction-x) * var(--travel-distance));
-    opacity: 0;
-    scale: 1;
-  }
+  mix-blend-mode: normal;
 }
 
 @keyframes scene-breathe {
@@ -1391,106 +1293,6 @@ button:disabled {
   }
 }
 
-@keyframes head-nose {
-  from {
-    translate: 1.19vmax 0.5vmin;
-  }
-
-  50% {
-    translate: 1.06vmax 0.5vmin;
-  }
-
-  to {
-    translate: 1.19vmax 0.5vmin;
-  }
-}
-
-@keyframes head-chin {
-  from {
-    translate: 0.45vmax 0.66vmax;
-  }
-
-  50% {
-    translate: 0.2vmax 0.66vmax;
-  }
-
-  to {
-    translate: 0.45vmax 0.66vmax;
-  }
-}
-
-@keyframes structure-shift {
-  from {
-    translate: 0 0;
-  }
-
-  50% {
-    translate: -100% 0;
-  }
-
-  to {
-    translate: 0 0;
-  }
-}
-
-@keyframes arm-right {
-  from {
-    rotate: 346deg;
-  }
-
-  50% {
-    rotate: 350deg;
-  }
-
-  to {
-    rotate: 346deg;
-  }
-}
-
-@keyframes arm-left {
-  from {
-    rotate: 359deg;
-  }
-
-  50% {
-    rotate: 364deg;
-  }
-
-  to {
-    rotate: 359deg;
-  }
-}
-
-@keyframes outline-animation {
-  from {
-    --space: var(--initial-space, 0vmax);
-    opacity: 0;
-    filter: blur(0vmax);
-  }
-
-  5% {
-    opacity: 0.2;
-  }
-
-  40% {
-    opacity: 0.5;
-  }
-
-  60% {
-    opacity: 0.05;
-    filter: blur(0vmax);
-  }
-
-  80% {
-    opacity: 0;
-  }
-
-  to {
-    --space: calc(var(--initial-space, 0vmax) + 25vmax);
-    opacity: 0;
-    filter: blur(0.6vmax);
-  }
-}
 
 @media (max-width: 640px) {
   .desktop-navigation,
