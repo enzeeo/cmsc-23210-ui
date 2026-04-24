@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&display=swap");
+
 :root {
   --page-background-color: #050816;
   --card-background-color: rgba(247, 249, 255, 0.9);
@@ -15,6 +17,7 @@
   --spacing-medium: 1rem;
   --spacing-large: 1.5rem;
   --corner-radius: 12px;
+  --header-text-gradient: linear-gradient(180deg, #ffffff 0%, #38495a 100%);
 }
 
 * {
@@ -48,14 +51,14 @@ body {
   z-index: 20;
   height: var(--header-height);
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(8px);
   color: #ffffff;
 }
 
 .terms-page-locked .site-header {
   pointer-events: none;
-  background: #000000;
+  background: rgba(0, 0, 0, 0.72);
 }
 
 .site-header-inner {
@@ -86,10 +89,22 @@ body {
 .mobile-navigation-link {
   color: #ffffff;
   text-decoration: none;
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+}
+
+.nav-gradient-text {
+  display: inline-block;
+  background-image: var(--header-text-gradient);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .site-logo {
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
 }
 
@@ -133,8 +148,8 @@ body {
   content: "";
   width: 0.5rem;
   height: 0.5rem;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
   transform: rotate(45deg) translateY(-1px);
   opacity: 0.8;
 }
@@ -291,9 +306,10 @@ body {
 .mobile-navigation-heading {
   margin: 0 0 0.3rem;
   padding: 0 0.55rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.78);
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
   font-size: 0.72rem;
-  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
