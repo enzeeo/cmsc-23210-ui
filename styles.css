@@ -1,7 +1,16 @@
 :root {
-  --card-background-color: rgba(255, 255, 255, 0.85);
-  --overlay-background-color: rgba(0, 0, 0, 0.28);
-  --background-image-url: url("images/background.png");
+  --page-background-color: #050816;
+  --card-background-color: rgba(247, 249, 255, 0.9);
+  --card-border-color: rgba(255, 255, 255, 0.24);
+  --card-shadow-color: rgba(0, 0, 0, 0.42);
+  --text-color: #162033;
+  --muted-text-color: #41506c;
+  --field-border-color: rgba(57, 72, 102, 0.28);
+  --field-background-color: rgba(255, 255, 255, 0.95);
+  --button-background-color: rgba(255, 255, 255, 0.9);
+  --button-border-color: rgba(29, 39, 61, 0.7);
+  --button-hover-color: #dce8ff;
+  --focus-outline-color: #9fd0ff;
   --spacing-medium: 1rem;
   --spacing-large: 1.5rem;
   --corner-radius: 12px;
@@ -13,22 +22,63 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   min-height: 100vh;
-  color: #222222;
+  color: var(--text-color);
   position: relative;
   overflow: hidden;
-  background-image: var(--background-image-url);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: var(--page-background-color);
 }
 
-.background-overlay {
+.background-frame-wrapper {
   position: fixed;
   inset: 0;
-  background: var(--overlay-background-color);
   z-index: -1;
+  overflow: hidden;
+}
+
+.background-frame,
+.background-frame-overlay,
+.background-top-mask,
+.background-top-right-mask,
+.background-bottom-mask {
+  position: absolute;
+  inset: 0;
+}
+
+.background-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
+.background-frame-overlay {
+  background:
+    linear-gradient(rgba(6, 9, 20, 0.16), rgba(6, 9, 20, 0.16)),
+    radial-gradient(circle, transparent 52%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+.background-top-mask {
+  inset: 0 0 auto 0;
+  height: 4.25rem;
+  background: #000000;
+}
+
+.background-bottom-mask {
+  inset: auto 0 0 0;
+  height: 6rem;
+  background:
+    linear-gradient(180deg, rgba(5, 8, 22, 0) 0%, rgba(5, 8, 22, 0.88) 28%, #050816 100%);
+}
+
+.background-top-right-mask {
+  inset: 4.25rem 1rem auto auto;
+  width: 8rem;
+  height: 3.5rem;
+  background:
+    radial-gradient(circle at top left, rgba(5, 8, 22, 0.18), rgba(5, 8, 22, 0.92) 62%, #050816 100%);
+  border-bottom-left-radius: 1rem;
 }
 
 .page-wrapper {
@@ -45,21 +95,24 @@ body {
   background: var(--card-background-color);
   padding: var(--spacing-large);
   border-radius: var(--corner-radius);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--card-border-color);
+  box-shadow: 0 16px 42px var(--card-shadow-color);
+  backdrop-filter: blur(14px);
 }
 
 .helper-text {
   margin-bottom: var(--spacing-medium);
+  color: var(--muted-text-color);
 }
 
 .terms-container {
-  border: 1px solid #c9c9c9;
+  border: 1px solid var(--field-border-color);
   border-radius: 8px;
   padding: var(--spacing-medium);
   min-height: 420px;
   max-height: 65vh;
   overflow-y: auto;
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.92);
 }
 
 .form-layout {
@@ -73,6 +126,10 @@ input[type="text"] {
   width: 100%;
   padding: 0.65rem;
   font-size: 1rem;
+  border: 1px solid var(--field-border-color);
+  border-radius: 8px;
+  background-color: var(--field-background-color);
+  color: var(--text-color);
 }
 
 .button-group {
@@ -84,11 +141,28 @@ button,
 .primary-link {
   padding: 0.6rem 1rem;
   border-radius: 6px;
-  border: 1px solid #333333;
-  background-color: #ffffff;
+  border: 1px solid var(--button-border-color);
+  background-color: var(--button-background-color);
+  color: var(--text-color);
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
+  transition: background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+button:hover:not(:disabled),
+.primary-link:hover {
+  background-color: var(--button-hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(33, 55, 104, 0.18);
+}
+
+button:focus-visible,
+.primary-link:focus-visible,
+input[type="text"]:focus-visible,
+.terms-container:focus-visible {
+  outline: 3px solid var(--focus-outline-color);
+  outline-offset: 3px;
 }
 
 button:disabled {
@@ -103,4 +177,24 @@ button:disabled {
 
 .second-page {
   text-align: center;
+}
+
+@media (max-width: 640px) {
+  .content-card {
+    padding: 1.1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .background-frame {
+    display: none;
+  }
+
+  .background-frame-wrapper {
+    background: #242425;
+  }
 }
