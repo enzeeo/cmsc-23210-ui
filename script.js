@@ -1,4 +1,4 @@
-const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyvP52mtJ8PRvbSj2yldQWy6eIUzoSrlTm4DKutetUIeg9rm7I7p6Dz4j2b6EPPIvh6jQ/exec";
+const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwsA2FKFpRnIldGVua9mPN4IsknZ-mDqKOqMoyzKO74oAvjlxDXBvetakEkuESFOug2qQ/exec";
 const SCROLL_TOLERANCE_IN_PIXELS = 2;
 const SMALL_PLANET_LAYER_COUNT = 5;
 const DUST_PLANET_LAYER_COUNT = 50;
