@@ -7,8 +7,9 @@ const PLACEHOLDER_DOCUMENT_URL = "";
 const PLACEHOLDER_DOCUMENT_TITLE = "Placeholder Terms and Conditions";
 const PDF_CONTAINER_SCROLL_HEIGHT_OFFSET = 4;
 const PDF_WIDTH_FIT_HASH = "#view=FitH&zoom=page-width";
-const pageOpenedAtMilliseconds = Date.now();
-const pageOpenedAtIsoTimestamp = new Date(pageOpenedAtMilliseconds).toISOString();
+const TRACKING_SESSION_STORAGE_KEY = "termsTrackingSessionState";
+
+let trackingSessionState = null;
 
 function getElements() {
   return {
@@ -257,15 +258,126 @@ function initializeCosmicBackground() {
   );
 }
 
+function readTrackingSessionStateFromStorage() {
+  try {
+    const storedTrackingSessionState = sessionStorage.getItem(TRACKING_SESSION_STORAGE_KEY);
+
+    if (!storedTrackingSessionState) {
+      return null;
+    }
+
+    return JSON.parse(storedTrackingSessionState);
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeTrackingSessionStateToStorage() {
+  if (!trackingSessionState) {
+    return;
+  }
+
+  try {
+    sessionStorage.setItem(TRACKING_SESSION_STORAGE_KEY, JSON.stringify(trackingSessionState));
+  } catch (error) {
+    return;
+  }
+}
+
+function clearTrackingSessionState() {
+  trackingSessionState = null;
+
+  try {
+    sessionStorage.removeItem(TRACKING_SESSION_STORAGE_KEY);
+  } catch (error) {
+    return;
+  }
+}
+
+function getCurrentTimestampInMilliseconds() {
+  return Date.now();
+}
+
+function createNewTrackingSessionState() {
+  const currentTimestampInMilliseconds = getCurrentTimestampInMilliseconds();
+
+  return {
+    openedAtMilliseconds: currentTimestampInMilliseconds,
+    openedAtIsoTimestamp: new Date(currentTimestampInMilliseconds).toISOString(),
+    accumulatedActiveMilliseconds: 0,
+    activeSegmentStartedAtMilliseconds: null
+  };
+}
+
+function isTermsPageActivelyVisible() {
+  return document.visibilityState === "visible" && document.hasFocus();
+}
+
+function startActiveTrackingSegment() {
+  if (!trackingSessionState || trackingSessionState.activeSegmentStartedAtMilliseconds !== null) {
+    return;
+  }
+
+  trackingSessionState.activeSegmentStartedAtMilliseconds = getCurrentTimestampInMilliseconds();
+  writeTrackingSessionStateToStorage();
+}
+
+function stopActiveTrackingSegment() {
+  if (!trackingSessionState || trackingSessionState.activeSegmentStartedAtMilliseconds === null) {
+    return;
+  }
+
+  const currentTimestampInMilliseconds = getCurrentTimestampInMilliseconds();
+  const activeSegmentDurationInMilliseconds =
+    currentTimestampInMilliseconds - trackingSessionState.activeSegmentStartedAtMilliseconds;
+
+  trackingSessionState.accumulatedActiveMilliseconds += activeSegmentDurationInMilliseconds;
+  trackingSessionState.activeSegmentStartedAtMilliseconds = null;
+  writeTrackingSessionStateToStorage();
+}
+
+function updateTrackingForCurrentVisibilityState() {
+  if (!trackingSessionState) {
+    return;
+  }
+
+  if (isTermsPageActivelyVisible()) {
+    startActiveTrackingSegment();
+    return;
+  }
+
+  stopActiveTrackingSegment();
+}
+
+function getTrackedActiveMillisecondsAtSelection() {
+  if (!trackingSessionState) {
+    return 0;
+  }
+
+  if (trackingSessionState.activeSegmentStartedAtMilliseconds === null) {
+    return trackingSessionState.accumulatedActiveMilliseconds;
+  }
+
+  const currentTimestampInMilliseconds = getCurrentTimestampInMilliseconds();
+
+  return (
+    trackingSessionState.accumulatedActiveMilliseconds +
+    (currentTimestampInMilliseconds - trackingSessionState.activeSegmentStartedAtMilliseconds)
+  );
+}
+
 function buildTrackingPayload(typedName, selectedAction) {
   const buttonPressedAtMilliseconds = Date.now();
+  const trackedActiveMillisecondsAtSelection = getTrackedActiveMillisecondsAtSelection();
 
   return {
     typedName,
     selectedAction,
-    openedAtIsoTimestamp: pageOpenedAtIsoTimestamp,
+    openedAtIsoTimestamp: trackingSessionState
+      ? trackingSessionState.openedAtIsoTimestamp
+      : new Date(buttonPressedAtMilliseconds).toISOString(),
     pressedAtIsoTimestamp: new Date(buttonPressedAtMilliseconds).toISOString(),
-    timeFromPageOpenToSelectionMilliseconds: buttonPressedAtMilliseconds - pageOpenedAtMilliseconds
+    timeFromPageOpenToSelectionMilliseconds: trackedActiveMillisecondsAtSelection
   };
 }
 
@@ -295,6 +407,8 @@ async function handleButtonSelection(selectedAction, elements) {
     return;
   }
 
+  stopActiveTrackingSegment();
+
   const trackingPayload = buildTrackingPayload(typedName, selectedAction);
 
   try {
@@ -303,7 +417,27 @@ async function handleButtonSelection(selectedAction, elements) {
     showMessage(elements, "Tracking endpoint is a placeholder right now. Continuing to next page.");
   }
 
+  clearTrackingSessionState();
   window.location.href = "link.html";
+}
+
+function initializeTrackingSessionState() {
+  const storedTrackingSessionState = readTrackingSessionStateFromStorage();
+
+  if (storedTrackingSessionState) {
+    trackingSessionState = storedTrackingSessionState;
+  } else {
+    trackingSessionState = createNewTrackingSessionState();
+    writeTrackingSessionStateToStorage();
+  }
+
+  updateTrackingForCurrentVisibilityState();
+
+  document.addEventListener("visibilitychange", updateTrackingForCurrentVisibilityState);
+  window.addEventListener("focus", updateTrackingForCurrentVisibilityState);
+  window.addEventListener("blur", updateTrackingForCurrentVisibilityState);
+  window.addEventListener("pagehide", stopActiveTrackingSegment);
+  window.addEventListener("beforeunload", stopActiveTrackingSegment);
 }
 
 function initializeTermsPage() {
@@ -313,6 +447,7 @@ function initializeTermsPage() {
     return;
   }
 
+  initializeTrackingSessionState();
   initializeTermsDocumentFrame(elements);
 
   if (documentDoesNotNeedScrolling(elements.termsContainer)) {
