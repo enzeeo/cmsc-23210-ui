@@ -1,4 +1,4 @@
-const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwsA2FKFpRnIldGVua9mPN4IsknZ-mDqKOqMoyzKO74oAvjlxDXBvetakEkuESFOug2qQ/exec";
+const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz2BCyaOHCzEgYg69aBvDM7jusIlzZjAlGkTmMoY7WqmbGQ9ML1q0Ga0k9pre7QjikuvA/exec";
 const SCROLL_TOLERANCE_IN_PIXELS = 2;
 const SMALL_PLANET_LAYER_COUNT = 5;
 const DUST_PLANET_LAYER_COUNT = 50;
@@ -303,9 +303,45 @@ function createNewTrackingSessionState() {
 
   return {
     openedAtMilliseconds: currentTimestampInMilliseconds,
-    openedAtIsoTimestamp: new Date(currentTimestampInMilliseconds).toISOString(),
     accumulatedActiveMilliseconds: 0,
     activeSegmentStartedAtMilliseconds: null
+  };
+}
+
+function getSafeNumber(value, fallbackValue) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  return fallbackValue;
+}
+
+function normalizeTrackingSessionState(candidateTrackingSessionState) {
+  const defaultTrackingSessionState = createNewTrackingSessionState();
+
+  if (!candidateTrackingSessionState || typeof candidateTrackingSessionState !== "object") {
+    return defaultTrackingSessionState;
+  }
+
+  const normalizedOpenedAtMilliseconds = getSafeNumber(
+    candidateTrackingSessionState.openedAtMilliseconds,
+    defaultTrackingSessionState.openedAtMilliseconds
+  );
+  const normalizedAccumulatedActiveMilliseconds = getSafeNumber(
+    candidateTrackingSessionState.accumulatedActiveMilliseconds,
+    0
+  );
+  const rawActiveSegmentStartedAtMilliseconds =
+    candidateTrackingSessionState.activeSegmentStartedAtMilliseconds;
+  const normalizedActiveSegmentStartedAtMilliseconds =
+    rawActiveSegmentStartedAtMilliseconds === null
+      ? null
+      : getSafeNumber(rawActiveSegmentStartedAtMilliseconds, null);
+
+  return {
+    openedAtMilliseconds: normalizedOpenedAtMilliseconds,
+    accumulatedActiveMilliseconds: normalizedAccumulatedActiveMilliseconds,
+    activeSegmentStartedAtMilliseconds: normalizedActiveSegmentStartedAtMilliseconds
   };
 }
 
@@ -366,16 +402,23 @@ function getTrackedActiveMillisecondsAtSelection() {
   );
 }
 
+function getSafeTrackedActiveMillisecondsAtSelection() {
+  const trackedActiveMillisecondsAtSelection = getTrackedActiveMillisecondsAtSelection();
+
+  if (!Number.isFinite(trackedActiveMillisecondsAtSelection) || trackedActiveMillisecondsAtSelection < 0) {
+    return 0;
+  }
+
+  return Math.round(trackedActiveMillisecondsAtSelection);
+}
+
 function buildTrackingPayload(typedName, selectedAction) {
   const buttonPressedAtMilliseconds = Date.now();
-  const trackedActiveMillisecondsAtSelection = getTrackedActiveMillisecondsAtSelection();
+  const trackedActiveMillisecondsAtSelection = getSafeTrackedActiveMillisecondsAtSelection();
 
   return {
     typedName,
     selectedAction,
-    openedAtIsoTimestamp: trackingSessionState
-      ? trackingSessionState.openedAtIsoTimestamp
-      : new Date(buttonPressedAtMilliseconds).toISOString(),
     pressedAtIsoTimestamp: new Date(buttonPressedAtMilliseconds).toISOString(),
     timeFromPageOpenToSelectionMilliseconds: trackedActiveMillisecondsAtSelection
   };
@@ -386,7 +429,6 @@ async function sendTrackingData(payload) {
 
   formData.append("typedName", payload.typedName);
   formData.append("selectedAction", payload.selectedAction);
-  formData.append("openedAtIsoTimestamp", payload.openedAtIsoTimestamp);
   formData.append("pressedAtIsoTimestamp", payload.pressedAtIsoTimestamp);
   formData.append(
     "timeFromPageOpenToSelectionMilliseconds",
@@ -425,7 +467,8 @@ function initializeTrackingSessionState() {
   const storedTrackingSessionState = readTrackingSessionStateFromStorage();
 
   if (storedTrackingSessionState) {
-    trackingSessionState = storedTrackingSessionState;
+    trackingSessionState = normalizeTrackingSessionState(storedTrackingSessionState);
+    writeTrackingSessionStateToStorage();
   } else {
     trackingSessionState = createNewTrackingSessionState();
     writeTrackingSessionStateToStorage();
