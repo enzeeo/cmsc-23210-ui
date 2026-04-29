@@ -487,6 +487,34 @@ function initializeTrackingSessionState() {
   window.addEventListener("beforeunload", stopActiveTrackingSegment);
 }
 
+function closeOtherNavigationDropdowns(activeNavigationDropdown, allNavigationDropdowns) {
+  for (const navigationDropdown of allNavigationDropdowns) {
+    if (navigationDropdown === activeNavigationDropdown) {
+      continue;
+    }
+
+    navigationDropdown.open = false;
+  }
+}
+
+function initializeDesktopNavigationDropdowns() {
+  const allNavigationDropdowns = Array.from(document.querySelectorAll(".desktop-navigation .navigation-dropdown"));
+
+  if (allNavigationDropdowns.length === 0) {
+    return;
+  }
+
+  for (const navigationDropdown of allNavigationDropdowns) {
+    navigationDropdown.addEventListener("toggle", () => {
+      if (!navigationDropdown.open) {
+        return;
+      }
+
+      closeOtherNavigationDropdowns(navigationDropdown, allNavigationDropdowns);
+    });
+  }
+}
+
 function initializeTermsPage() {
   const elements = getElements();
 
@@ -511,4 +539,5 @@ function initializeTermsPage() {
 }
 
 initializeCosmicBackground();
+initializeDesktopNavigationDropdowns();
 initializeTermsPage();
