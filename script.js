@@ -7,6 +7,8 @@ const PLACEHOLDER_DOCUMENT_URL = "";
 const PLACEHOLDER_DOCUMENT_TITLE = "Placeholder Terms and Conditions";
 const PDF_CONTAINER_SCROLL_HEIGHT_OFFSET = 4;
 const PDF_WIDTH_FIT_HASH = "#view=FitH&zoom=page-width";
+const pageOpenedAtMilliseconds = Date.now();
+const pageOpenedAtIsoTimestamp = new Date(pageOpenedAtMilliseconds).toISOString();
 
 function getElements() {
   return {
@@ -65,7 +67,7 @@ function buildPlaceholderTermsDocument() {
           body {
             min-height: 100%;
             margin: 0;
-            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
             color: #162033;
             background: #ffffff;
             overflow-x: hidden;
@@ -256,10 +258,14 @@ function initializeCosmicBackground() {
 }
 
 function buildTrackingPayload(typedName, selectedAction) {
+  const buttonPressedAtMilliseconds = Date.now();
+
   return {
     typedName,
     selectedAction,
-    pressedAtIsoTimestamp: new Date().toISOString()
+    openedAtIsoTimestamp: pageOpenedAtIsoTimestamp,
+    pressedAtIsoTimestamp: new Date(buttonPressedAtMilliseconds).toISOString(),
+    timeFromPageOpenToSelectionMilliseconds: buttonPressedAtMilliseconds - pageOpenedAtMilliseconds
   };
 }
 
@@ -268,7 +274,12 @@ async function sendTrackingData(payload) {
 
   formData.append("typedName", payload.typedName);
   formData.append("selectedAction", payload.selectedAction);
+  formData.append("openedAtIsoTimestamp", payload.openedAtIsoTimestamp);
   formData.append("pressedAtIsoTimestamp", payload.pressedAtIsoTimestamp);
+  formData.append(
+    "timeFromPageOpenToSelectionMilliseconds",
+    String(payload.timeFromPageOpenToSelectionMilliseconds)
+  );
 
   await fetch(TRACKING_ENDPOINT_URL, {
     method: "POST",

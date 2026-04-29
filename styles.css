@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
 :root {
   --page-background-color: #050816;
@@ -26,7 +26,7 @@
 
 body {
   margin: 0;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
   min-height: 100vh;
   color: var(--text-color);
   position: relative;
@@ -51,14 +51,14 @@ body {
   z-index: 20;
   height: var(--header-height);
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.52);
   backdrop-filter: blur(8px);
   color: #ffffff;
 }
 
 .terms-page-locked .site-header {
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.52);
 }
 
 .site-header-inner {
@@ -89,7 +89,7 @@ body {
 .mobile-navigation-link {
   color: #ffffff;
   text-decoration: none;
-  font-family: "Lato", sans-serif;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
   font-weight: 300;
 }
 
@@ -307,7 +307,7 @@ body {
   margin: 0 0 0.3rem;
   padding: 0 0.55rem;
   color: rgba(255, 255, 255, 0.78);
-  font-family: "Lato", sans-serif;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
   font-weight: 300;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
@@ -488,6 +488,40 @@ button:disabled {
 
 .second-page {
   text-align: center;
+}
+
+.debrief-card {
+  max-width: 980px;
+  max-height: calc(100vh - var(--header-height) - 3rem);
+  padding: 2rem;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.debrief-card h1 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.9rem;
+}
+
+.debrief-card p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.contact-line {
+  color: var(--muted-text-color);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.inline-text-link {
+  color: inherit;
+}
+
+.debrief-card .primary-link {
+  margin-top: 0.5rem;
 }
 
 .cosmic-background {
@@ -1306,6 +1340,11 @@ button:disabled {
 
   .content-card {
     padding: 1.1rem;
+  }
+
+  .debrief-card {
+    max-height: calc(100vh - var(--header-height) - 2rem);
+    padding: 1.35rem;
   }
 
   .button-group {
