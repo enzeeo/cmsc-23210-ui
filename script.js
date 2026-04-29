@@ -424,7 +424,7 @@ function buildTrackingPayload(typedName, selectedAction) {
   };
 }
 
-async function sendTrackingData(payload) {
+function sendTrackingData(payload) {
   const formData = new URLSearchParams();
 
   formData.append("typedName", payload.typedName);
@@ -435,9 +435,10 @@ async function sendTrackingData(payload) {
     String(payload.timeFromPageOpenToSelectionMilliseconds)
   );
 
-  await fetch(TRACKING_ENDPOINT_URL, {
+  return fetch(TRACKING_ENDPOINT_URL, {
     method: "POST",
-    body: formData
+    body: formData,
+    keepalive: true
   });
 }
 
@@ -452,11 +453,14 @@ async function handleButtonSelection(selectedAction, elements) {
   stopActiveTrackingSegment();
 
   const trackingPayload = buildTrackingPayload(typedName, selectedAction);
+  elements.acceptButton.disabled = true;
+  elements.rejectButton.disabled = true;
+  elements.nameInput.disabled = true;
 
   try {
-    await sendTrackingData(trackingPayload);
+    sendTrackingData(trackingPayload);
   } catch (error) {
-    showMessage(elements, "Tracking endpoint is a placeholder right now. Continuing to next page.");
+    showMessage(elements, "Tracking endpoint is unavailable right now. Continuing to next page.");
   }
 
   clearTrackingSessionState();
