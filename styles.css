@@ -185,7 +185,7 @@ body {
 .navigation-panel-vertical {
   display: flex;
   flex-direction: column;
-  width: 14rem;
+  width: 11rem;
 }
 
 .navigation-card {
@@ -205,6 +205,12 @@ body {
   display: block;
   font-size: 0.94rem;
   font-weight: 600;
+}
+
+.navigation-panel-vertical .navigation-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navigation-card-description {
@@ -353,13 +359,16 @@ body {
   overflow: hidden;
 }
 
+.terms-page-card {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .terms-title-bar {
   display: flex;
   align-items: center;
   min-height: 4.25rem;
   margin-top: calc(-1 * var(--spacing-large));
-  margin-left: calc(-1 * var(--spacing-large));
-  margin-right: calc(-1 * var(--spacing-large));
   margin-bottom: 0;
   padding: 0 1.5rem;
   border-bottom: 1px solid rgba(57, 72, 102, 0.2);
@@ -379,8 +388,6 @@ body {
 
 .terms-container {
   width: auto;
-  margin-left: calc(-1 * var(--spacing-large));
-  margin-right: calc(-1 * var(--spacing-large));
   height: calc(62vh - 4.25rem);
   min-height: calc(396px - 4.25rem);
   border-bottom: 1px solid rgba(57, 72, 102, 0.2);
@@ -404,6 +411,8 @@ body {
 }
 
 .consent-section {
+  padding-left: var(--spacing-large);
+  padding-right: var(--spacing-large);
   padding-top: var(--spacing-medium);
 }
 
@@ -470,20 +479,18 @@ button:disabled {
 @media (max-width: 720px) {
   .terms-title-bar {
     margin-top: -1rem;
-    margin-left: -1rem;
-    margin-right: -1rem;
     padding: 0 1rem;
   }
 
   .terms-container {
     width: auto;
-    margin-left: -1rem;
-    margin-right: -1rem;
     height: calc(58vh - 4.25rem);
     min-height: calc(420px - 4.25rem);
   }
 
   .consent-section {
+    padding-left: 0;
+    padding-right: 0;
     padding-top: 1rem;
   }
 
