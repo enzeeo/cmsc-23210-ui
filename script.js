@@ -3,19 +3,26 @@ const SCROLL_TOLERANCE_IN_PIXELS = 2;
 const SMALL_PLANET_LAYER_COUNT = 5;
 const DUST_PLANET_LAYER_COUNT = 50;
 const STAR_TAIL_COUNT = 201;
-const PLACEHOLDER_DOCUMENT_URL = "tc/normalTC.pdf";
-const PLACEHOLDER_DOCUMENT_TITLE = "Placeholder Terms and Conditions";
-const PDF_CONTAINER_SCROLL_HEIGHT_OFFSET = 4;
-const PDF_WIDTH_FIT_HASH = "#toolbar=0&navpanes=0&statusbar=0&messages=0&view=FitH&zoom=page-width";
+const TERMS_DOCUMENT_URL = "tc/normalTC.pdf";
+const PDFJS_WORKER_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const TERMS_DOCUMENT_SCROLL_HEIGHT_OFFSET = 4;
+const TERMS_DOCUMENT_RENDER_DELAY_IN_MILLISECONDS = 150;
 const TRACKING_SESSION_STORAGE_KEY = "termsTrackingSessionState";
 
 let trackingSessionState = null;
+let termsDocumentLoadingPromise = null;
+let loadedTermsDocument = null;
+let termsDocumentRenderedSuccessfully = false;
+let latestTermsDocumentRenderIdentifier = 0;
+let termsDocumentResizeTimeoutIdentifier = null;
+let lastRenderedTermsDocumentWidth = 0;
 
 function getElements() {
   return {
     cosmicBackground: document.getElementById("cosmicBackground"),
     termsContainer: document.getElementById("termsContainer"),
-    termsDocumentFrame: document.getElementById("termsDocumentFrame"),
+    termsDocumentViewer: document.getElementById("termsDocumentViewer"),
+    termsDocumentStateMessage: document.getElementById("termsDocumentStateMessage"),
     nameInput: document.getElementById("nameInput"),
     acceptButton: document.getElementById("acceptButton"),
     rejectButton: document.getElementById("rejectButton"),
@@ -33,6 +40,13 @@ function hasScrolledToBottom(scrollableElement) {
   return currentPosition >= maxScrollPosition;
 }
 
+function documentDoesNotNeedScrolling(scrollableElement) {
+  const totalScrollHeight = scrollableElement.scrollHeight;
+  const visibleHeight = scrollableElement.clientHeight;
+
+  return totalScrollHeight <= visibleHeight + TERMS_DOCUMENT_SCROLL_HEIGHT_OFFSET;
+}
+
 function enableConsentControls(elements) {
   if (!elements.nameInput.disabled && !elements.acceptButton.disabled && !elements.rejectButton.disabled) {
     return;
@@ -44,126 +58,251 @@ function enableConsentControls(elements) {
   elements.statusMessage.textContent = "You can now enter your name and choose Accept or Reject.";
 }
 
+function disableConsentControls(elements) {
+  elements.nameInput.disabled = true;
+  elements.acceptButton.disabled = true;
+  elements.rejectButton.disabled = true;
+}
+
 function showMessage(elements, messageText) {
   elements.statusMessage.textContent = messageText;
 }
 
-function buildPlaceholderTermsDocument() {
-  return `
-    <div class="terms-placeholder-document">
-      <h2>${PLACEHOLDER_DOCUMENT_TITLE}</h2>
-      <p>
-        This embedded area is where your PDF will be shown. When you replace the source with a PDF
-        file, it will render in this full-width document area and the viewer can scroll up and
-        down inside it.
-      </p>
-      <p>
-        This placeholder keeps the page usable now. It also keeps the bottom form unlocked once
-        the document has been read or when the embedded viewer does not expose scroll progress.
-      </p>
-      <p>
-        By continuing, you acknowledge that this example page records exactly what you type in
-        the name field, which button you press, and the time of your action.
-      </p>
-      <p>
-        Placeholder section 1: You agree to review updates when available.
-        Placeholder section 2: You understand this page is for demonstration.
-        Placeholder section 3: You understand tracking information is collected.
-        Placeholder section 4: You confirm that you may continue to the next page.
-      </p>
-      <p>
-        End of placeholder terms and conditions.
-      </p>
-    </div>
-  `;
-}
-
-function documentDoesNotNeedScrolling(scrollableElement) {
-  const totalScrollHeight = scrollableElement.scrollHeight;
-  const visibleHeight = scrollableElement.clientHeight;
-
-  return totalScrollHeight <= visibleHeight + PDF_CONTAINER_SCROLL_HEIGHT_OFFSET;
-}
-
-function tryGetFrameDocument(termsDocumentFrame) {
-  try {
-    return termsDocumentFrame.contentDocument;
-  } catch (error) {
-    return null;
-  }
-}
-
-function buildDocumentFrameSource(documentUrl) {
-  const lowercaseDocumentUrl = documentUrl.toLowerCase();
-
-  if (!lowercaseDocumentUrl.endsWith(".pdf")) {
-    return documentUrl;
-  }
-
-  if (documentUrl.includes("#")) {
-    return documentUrl;
-  }
-
-  return `${documentUrl}${PDF_WIDTH_FIT_HASH}`;
-}
-
-function updateConsentAvailabilityForFrame(elements) {
-  const frameDocument = tryGetFrameDocument(elements.termsDocumentFrame);
-
-  if (!frameDocument) {
-    enableConsentControls(elements);
+function showTermsDocumentState(elements, messageText, stateType) {
+  if (!elements.termsDocumentStateMessage) {
     return;
   }
 
-  const frameScrollRoot = frameDocument.scrollingElement || frameDocument.documentElement;
+  elements.termsDocumentStateMessage.hidden = false;
+  elements.termsDocumentStateMessage.dataset.state = stateType;
+  elements.termsDocumentStateMessage.textContent = messageText;
+}
 
-  if (!frameScrollRoot) {
-    enableConsentControls(elements);
+function hideTermsDocumentState(elements) {
+  if (!elements.termsDocumentStateMessage) {
     return;
   }
 
-  if (documentDoesNotNeedScrolling(frameScrollRoot) || hasScrolledToBottom(frameScrollRoot)) {
+  elements.termsDocumentStateMessage.hidden = true;
+  elements.termsDocumentStateMessage.dataset.state = "";
+  elements.termsDocumentStateMessage.textContent = "";
+}
+
+function clearTermsDocumentViewer(elements) {
+  if (!elements.termsDocumentViewer) {
+    return;
+  }
+
+  elements.termsDocumentViewer.replaceChildren();
+}
+
+function updateConsentAvailabilityForTermsContainer(elements) {
+  if (!termsDocumentRenderedSuccessfully || !elements.termsContainer) {
+    return;
+  }
+
+  if (
+    documentDoesNotNeedScrolling(elements.termsContainer) ||
+    hasScrolledToBottom(elements.termsContainer)
+  ) {
     enableConsentControls(elements);
   }
 }
 
-function connectFrameScrollTracking(elements) {
-  const frameDocument = tryGetFrameDocument(elements.termsDocumentFrame);
-
-  if (!frameDocument) {
-    enableConsentControls(elements);
-    return;
+function configurePdfJsLibrary() {
+  if (!window.pdfjsLib) {
+    throw new Error("PDF.js library is unavailable.");
   }
 
-  const frameWindow = elements.termsDocumentFrame.contentWindow;
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;
+}
 
-  if (frameWindow) {
-    frameWindow.addEventListener("scroll", () => {
-      updateConsentAvailabilityForFrame(elements);
+function loadTermsDocument() {
+  if (loadedTermsDocument) {
+    return Promise.resolve(loadedTermsDocument);
+  }
+
+  if (termsDocumentLoadingPromise) {
+    return termsDocumentLoadingPromise;
+  }
+
+  if (TERMS_DOCUMENT_URL.length === 0) {
+    return Promise.reject(new Error("Terms document URL is missing."));
+  }
+
+  configurePdfJsLibrary();
+
+  const loadingTask = window.pdfjsLib.getDocument(TERMS_DOCUMENT_URL);
+
+  termsDocumentLoadingPromise = loadingTask.promise
+    .then((pdfDocument) => {
+      loadedTermsDocument = pdfDocument;
+      return pdfDocument;
+    })
+    .catch((error) => {
+      termsDocumentLoadingPromise = null;
+      throw error;
     });
-  }
 
-  frameDocument.addEventListener("scroll", () => {
-    updateConsentAvailabilityForFrame(elements);
-  });
-
-  updateConsentAvailabilityForFrame(elements);
+  return termsDocumentLoadingPromise;
 }
 
-function initializeTermsDocumentFrame(elements) {
-  if (!elements.termsDocumentFrame) {
+function getTermsDocumentViewerWidth(elements) {
+  if (!elements.termsDocumentViewer || !elements.termsContainer) {
+    return 0;
+  }
+
+  const viewerWidth = elements.termsDocumentViewer.clientWidth;
+
+  if (viewerWidth > 0) {
+    return viewerWidth;
+  }
+
+  return elements.termsContainer.clientWidth;
+}
+
+function getSafeDevicePixelRatio() {
+  if (typeof window.devicePixelRatio === "number" && window.devicePixelRatio > 0) {
+    return window.devicePixelRatio;
+  }
+
+  return 1;
+}
+
+async function renderTermsDocumentPageToCanvas(pdfPage, viewerWidth) {
+  const unscaledViewport = pdfPage.getViewport({ scale: 1 });
+  const pageScale = viewerWidth / unscaledViewport.width;
+  const scaledViewport = pdfPage.getViewport({ scale: pageScale });
+  const devicePixelRatio = getSafeDevicePixelRatio();
+
+  const pageCanvas = document.createElement("canvas");
+  const canvasContext = pageCanvas.getContext("2d");
+
+  if (!canvasContext) {
+    throw new Error("Could not create a drawing context for the terms document.");
+  }
+
+  pageCanvas.className = "terms-document-canvas";
+  pageCanvas.width = Math.ceil(scaledViewport.width * devicePixelRatio);
+  pageCanvas.height = Math.ceil(scaledViewport.height * devicePixelRatio);
+  pageCanvas.style.width = `${scaledViewport.width}px`;
+  pageCanvas.style.height = `${scaledViewport.height}px`;
+
+  canvasContext.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+  await pdfPage.render({
+    canvasContext,
+    viewport: scaledViewport
+  }).promise;
+
+  return pageCanvas;
+}
+
+async function renderTermsDocument(elements) {
+  if (!elements.termsContainer || !elements.termsDocumentViewer) {
     return;
   }
 
-  elements.termsDocumentFrame.addEventListener("load", () => {
-    connectFrameScrollTracking(elements);
+  const currentRenderIdentifier = latestTermsDocumentRenderIdentifier + 1;
+  latestTermsDocumentRenderIdentifier = currentRenderIdentifier;
+  termsDocumentRenderedSuccessfully = false;
+
+  disableConsentControls(elements);
+  elements.termsContainer.scrollTop = 0;
+  clearTermsDocumentViewer(elements);
+  showTermsDocumentState(elements, "Loading terms document...", "loading");
+  showMessage(elements, "Read the document above before continuing.");
+
+  try {
+    const pdfDocument = await loadTermsDocument();
+
+    if (currentRenderIdentifier !== latestTermsDocumentRenderIdentifier) {
+      return;
+    }
+
+    const viewerWidth = getTermsDocumentViewerWidth(elements);
+
+    if (viewerWidth <= 0) {
+      throw new Error("The terms document area is not ready for rendering yet.");
+    }
+
+    const pageElements = [];
+
+    for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+      const pdfPage = await pdfDocument.getPage(pageNumber);
+
+      if (currentRenderIdentifier !== latestTermsDocumentRenderIdentifier) {
+        return;
+      }
+
+      const pageCanvas = await renderTermsDocumentPageToCanvas(pdfPage, viewerWidth);
+      const pageWrapper = document.createElement("div");
+
+      pageWrapper.className = "terms-document-page";
+      pageWrapper.appendChild(pageCanvas);
+      pageElements.push(pageWrapper);
+    }
+
+    if (currentRenderIdentifier !== latestTermsDocumentRenderIdentifier) {
+      return;
+    }
+
+    elements.termsDocumentViewer.replaceChildren(...pageElements);
+    hideTermsDocumentState(elements);
+    termsDocumentRenderedSuccessfully = true;
+    lastRenderedTermsDocumentWidth = viewerWidth;
+    updateConsentAvailabilityForTermsContainer(elements);
+  } catch (error) {
+    if (currentRenderIdentifier !== latestTermsDocumentRenderIdentifier) {
+      return;
+    }
+
+    clearTermsDocumentViewer(elements);
+    termsDocumentRenderedSuccessfully = false;
+    showTermsDocumentState(
+      elements,
+      "Could not load terms document. Please refresh page or try again later.",
+      "error"
+    );
+    showMessage(elements, "Terms document must load before you can continue.");
+  }
+}
+
+function scheduleTermsDocumentRerender(elements) {
+  if (termsDocumentResizeTimeoutIdentifier !== null) {
+    window.clearTimeout(termsDocumentResizeTimeoutIdentifier);
+  }
+
+  termsDocumentResizeTimeoutIdentifier = window.setTimeout(() => {
+    termsDocumentResizeTimeoutIdentifier = null;
+    void renderTermsDocument(elements);
+  }, TERMS_DOCUMENT_RENDER_DELAY_IN_MILLISECONDS);
+}
+
+function initializeTermsDocumentViewer(elements) {
+  if (!elements.termsContainer || !elements.termsDocumentViewer) {
+    return;
+  }
+
+  elements.termsContainer.addEventListener("scroll", () => {
+    updateConsentAvailabilityForTermsContainer(elements);
   });
 
-  if (PLACEHOLDER_DOCUMENT_URL.length > 0) {
-    elements.termsDocumentFrame.src = buildDocumentFrameSource(PLACEHOLDER_DOCUMENT_URL);
-  } else {
-    elements.termsDocumentFrame.srcdoc = buildPlaceholderTermsDocument();
-  }
+  window.addEventListener("resize", () => {
+    if (!loadedTermsDocument) {
+      return;
+    }
+
+    const currentViewerWidth = getTermsDocumentViewerWidth(elements);
+
+    if (Math.abs(currentViewerWidth - lastRenderedTermsDocumentWidth) <= 1) {
+      return;
+    }
+
+    scheduleTermsDocumentRerender(elements);
+  });
+
+  void renderTermsDocument(elements);
 }
 
 function createBackgroundParticle() {
@@ -474,11 +613,7 @@ function initializeTermsPage() {
   }
 
   initializeTrackingSessionState();
-  initializeTermsDocumentFrame(elements);
-
-  if (documentDoesNotNeedScrolling(elements.termsContainer)) {
-    enableConsentControls(elements);
-  }
+  initializeTermsDocumentViewer(elements);
 
   elements.acceptButton.addEventListener("click", async () => {
     await handleButtonSelection("Accept", elements);

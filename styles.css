@@ -410,17 +410,44 @@ body {
   border-bottom: 1px solid rgba(57, 72, 102, 0.2);
   background-color: rgba(255, 255, 255, 0.96);
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
-.terms-document-frame {
+.terms-document-state-message {
+  margin: 0;
+  padding: 1rem 1rem 0;
+  color: var(--muted-text-color);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.terms-document-state-message[data-state="error"] {
+  color: #7d2434;
+}
+
+.terms-document-viewer {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: 100%;
-  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.terms-document-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.terms-document-canvas {
   display: block;
-  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.4rem;
+  box-shadow: 0 8px 24px rgba(22, 32, 51, 0.12);
 }
 
 .form-layout {

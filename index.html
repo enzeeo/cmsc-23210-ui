@@ -226,7 +226,13 @@
       </div>
 
       <div id="termsContainer" class="terms-container" aria-label="Terms and conditions document" tabindex="0">
-        <iframe id="termsDocumentFrame" class="terms-document-frame" title="Terms and conditions document"></iframe>
+        <p
+          id="termsDocumentStateMessage"
+          class="terms-document-state-message"
+          aria-live="polite"
+          hidden
+        ></p>
+        <div id="termsDocumentViewer" class="terms-document-viewer" aria-label="Terms and conditions pages"></div>
       </div>
 
       <div class="consent-section">
@@ -247,6 +253,7 @@
     </section>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="script.js"></script>
 </body>
 
