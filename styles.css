@@ -18,19 +18,29 @@
   --spacing-large: 1.5rem;
   --corner-radius: 12px;
   --header-text-gradient: linear-gradient(180deg, #ffffff 0%, #38495a 100%);
+  --content-card-maximum-width: 900px;
+  --terms-document-desktop-minimum-height: 20rem;
+  --terms-document-mobile-minimum-height: 16rem;
+  --terms-document-maximum-height: 44rem;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--text-color);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--page-background-color);
 }
 
@@ -342,6 +352,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - var(--header-height));
+  min-height: calc(100dvh - var(--header-height));
   padding: var(--spacing-large);
   position: relative;
   z-index: 10;
@@ -349,7 +360,7 @@ body {
 
 .content-card {
   width: 100%;
-  max-width: 900px;
+  max-width: var(--content-card-maximum-width);
   background: var(--card-background-color);
   padding: var(--spacing-large);
   border-radius: var(--corner-radius);
@@ -387,9 +398,15 @@ body {
 }
 
 .terms-container {
-  width: auto;
-  height: calc(62vh - 4.25rem);
-  min-height: calc(396px - 4.25rem);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: clamp(
+    var(--terms-document-desktop-minimum-height),
+    62dvh,
+    var(--terms-document-maximum-height)
+  );
+  min-height: var(--terms-document-desktop-minimum-height);
   border-bottom: 1px solid rgba(57, 72, 102, 0.2);
   background-color: rgba(255, 255, 255, 0.96);
   overflow-x: hidden;
@@ -398,6 +415,8 @@ body {
 
 .terms-document-frame {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
   border: none;
   display: block;
@@ -477,15 +496,27 @@ button:disabled {
 }
 
 @media (max-width: 720px) {
+  .page-wrapper {
+    align-items: stretch;
+    justify-content: flex-start;
+    min-height: calc(100dvh - var(--header-height));
+    padding: 1rem;
+  }
+
   .terms-title-bar {
     margin-top: -1rem;
     padding: 0 1rem;
   }
 
   .terms-container {
-    width: auto;
-    height: calc(58vh - 4.25rem);
-    min-height: calc(420px - 4.25rem);
+    width: 100%;
+    max-width: 100%;
+    height: clamp(
+      var(--terms-document-mobile-minimum-height),
+      54dvh,
+      var(--terms-document-maximum-height)
+    );
+    min-height: var(--terms-document-mobile-minimum-height);
   }
 
   .consent-section {
@@ -1353,6 +1384,7 @@ button:disabled {
 
   .content-card {
     padding: 1.1rem;
+    min-width: 0;
   }
 
   .debrief-card {
