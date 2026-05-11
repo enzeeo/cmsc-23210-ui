@@ -211,7 +211,6 @@ async function renderTermsDocument(elements) {
   elements.termsContainer.scrollTop = 0;
   clearTermsDocumentViewer(elements);
   showTermsDocumentState(elements, "Loading terms document...", "loading");
-  showMessage(elements, "Read the document above before continuing.");
 
   try {
     const pdfDocument = await loadTermsDocument();
