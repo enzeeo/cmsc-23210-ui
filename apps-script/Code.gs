@@ -1,10 +1,27 @@
 const RESPONSE_MIME_TYPE = ContentService.MimeType.JSON;
 const SHEET_NAME = "Responses";
 const CONDITION_LABEL = "control";
-const HEADER_ROW = ["Condition"];
+const HEADER_ROW = [
+  "Recorded At",
+  "Typed Name",
+  "Selected Action",
+  "Condition",
+  "Pressed At ISO Timestamp",
+  "Time From Page Open To Selection Milliseconds"
+];
 
-function doPost() {
+function doPost(event) {
   try {
+    const requestData = getRequestData(event);
+    const validationError = getValidationError(requestData);
+
+    if (validationError) {
+      return createJsonResponse({
+        ok: false,
+        error: validationError
+      });
+    }
+
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = getOrCreateSheet(spreadsheet);
     ensureHeaderRow(sheet);
@@ -13,7 +30,14 @@ function doPost() {
     lock.waitLock(10000);
 
     try {
-      sheet.appendRow([CONDITION_LABEL]);
+      sheet.appendRow([
+        new Date(),
+        requestData.typedName,
+        requestData.selectedAction,
+        CONDITION_LABEL,
+        requestData.pressedAtIsoTimestamp,
+        requestData.timeFromPageOpenToSelectionMilliseconds
+      ]);
     } finally {
       lock.releaseLock();
     }
@@ -33,9 +57,60 @@ function doPost() {
 function doGet() {
   return createJsonResponse({
     ok: true,
-    message: "Tracking endpoint is running.",
+    message: "Tracking endpoint is running. Send POST requests from the website.",
     condition: CONDITION_LABEL
   });
+}
+
+function getRequestData(event) {
+  const parameterData = event && event.parameter ? event.parameter : {};
+  const jsonData = getJsonData(event);
+
+  return {
+    typedName: getStringValue(jsonData.typedName || parameterData.typedName),
+    selectedAction: getStringValue(jsonData.selectedAction || parameterData.selectedAction),
+    pressedAtIsoTimestamp: getStringValue(jsonData.pressedAtIsoTimestamp || parameterData.pressedAtIsoTimestamp),
+    timeFromPageOpenToSelectionMilliseconds: getStringValue(
+      jsonData.timeFromPageOpenToSelectionMilliseconds ||
+        parameterData.timeFromPageOpenToSelectionMilliseconds
+    )
+  };
+}
+
+function getJsonData(event) {
+  if (!event || !event.postData || !event.postData.contents) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(event.postData.contents);
+  } catch (error) {
+    return {};
+  }
+}
+
+function getStringValue(value) {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  return String(value);
+}
+
+function getValidationError(requestData) {
+  if (requestData.typedName.length === 0) {
+    return "Missing typedName.";
+  }
+
+  if (requestData.selectedAction !== "Accept" && requestData.selectedAction !== "Reject") {
+    return "selectedAction must be Accept or Reject.";
+  }
+
+  if (requestData.pressedAtIsoTimestamp.length === 0) {
+    return "Missing pressedAtIsoTimestamp.";
+  }
+
+  return "";
 }
 
 function getOrCreateSheet(spreadsheet) {
@@ -49,9 +124,12 @@ function getOrCreateSheet(spreadsheet) {
 }
 
 function ensureHeaderRow(sheet) {
-  const firstCellValue = sheet.getRange(1, 1).getValue();
+  const firstRowValues = sheet.getRange(1, 1, 1, HEADER_ROW.length).getValues()[0];
+  const headerAlreadyExists = firstRowValues.some(function (cellValue) {
+    return String(cellValue).length > 0;
+  });
 
-  if (String(firstCellValue).length > 0) {
+  if (headerAlreadyExists) {
     return;
   }
 
