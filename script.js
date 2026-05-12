@@ -9,6 +9,8 @@ const TERMS_DOCUMENT_SCROLL_HEIGHT_OFFSET = 4;
 const TERMS_DOCUMENT_RENDER_DELAY_IN_MILLISECONDS = 150;
 const TRACKING_SESSION_STORAGE_KEY = "termsTrackingSessionState";
 const TRACKING_CONDITION_LABEL = "control";
+const TRACKING_REDIRECT_DELAY_IN_MILLISECONDS = 300;
+const TRACKING_FORM_TARGET_NAME = "trackingSubmissionFrame";
 
 let trackingSessionState = null;
 let termsDocumentLoadingPromise = null;
@@ -523,32 +525,60 @@ function buildTrackingEndpointUrl(payload) {
   return trackingEndpointUrl.toString();
 }
 
-function sendTrackingData(payload) {
-  const formData = new URLSearchParams();
-  const trackingEndpointUrl = buildTrackingEndpointUrl(payload);
+function createHiddenTrackingInput(inputName, inputValue) {
+  const hiddenInput = document.createElement("input");
 
-  formData.append("typedName", payload.typedName);
-  formData.append("selectedAction", payload.selectedAction);
-  formData.append("condition", payload.condition);
-  formData.append("pressedAtIsoTimestamp", payload.pressedAtIsoTimestamp);
-  formData.append(
-    "timeFromPageOpenToSelectionMilliseconds",
-    String(payload.timeFromPageOpenToSelectionMilliseconds)
-  );
+  hiddenInput.type = "hidden";
+  hiddenInput.name = inputName;
+  hiddenInput.value = String(inputValue);
 
-  if (navigator.sendBeacon) {
-    const trackingRequestWasQueued = navigator.sendBeacon(trackingEndpointUrl, formData);
+  return hiddenInput;
+}
 
-    if (trackingRequestWasQueued) {
-      return Promise.resolve();
-    }
+function createTrackingSubmissionFrame() {
+  const existingFrame = document.querySelector(`iframe[name="${TRACKING_FORM_TARGET_NAME}"]`);
+
+  if (existingFrame) {
+    return existingFrame;
   }
 
-  return fetch(trackingEndpointUrl, {
-    method: "POST",
-    mode: "no-cors",
-    body: formData,
-    keepalive: true
+  const trackingSubmissionFrame = document.createElement("iframe");
+
+  trackingSubmissionFrame.name = TRACKING_FORM_TARGET_NAME;
+  trackingSubmissionFrame.hidden = true;
+  document.body.appendChild(trackingSubmissionFrame);
+
+  return trackingSubmissionFrame;
+}
+
+function sendTrackingData(payload) {
+  const trackingEndpointUrl = buildTrackingEndpointUrl(payload);
+  const trackingForm = document.createElement("form");
+
+  createTrackingSubmissionFrame();
+
+  trackingForm.method = "POST";
+  trackingForm.action = trackingEndpointUrl;
+  trackingForm.target = TRACKING_FORM_TARGET_NAME;
+  trackingForm.hidden = true;
+  trackingForm.appendChild(createHiddenTrackingInput("typedName", payload.typedName));
+  trackingForm.appendChild(createHiddenTrackingInput("selectedAction", payload.selectedAction));
+  trackingForm.appendChild(createHiddenTrackingInput("condition", payload.condition));
+  trackingForm.appendChild(createHiddenTrackingInput("pressedAtIsoTimestamp", payload.pressedAtIsoTimestamp));
+  trackingForm.appendChild(createHiddenTrackingInput(
+    "timeFromPageOpenToSelectionMilliseconds",
+    payload.timeFromPageOpenToSelectionMilliseconds
+  ));
+  document.body.appendChild(trackingForm);
+  trackingForm.submit();
+  trackingForm.remove();
+
+  return waitForTrackingRedirectDelay();
+}
+
+function waitForTrackingRedirectDelay() {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, TRACKING_REDIRECT_DELAY_IN_MILLISECONDS);
   });
 }
 
