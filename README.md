@@ -7,6 +7,7 @@ Simple two-page static website for terms collection and link redirection.
 - `link.html`: Shared destination page for both Accept and Reject actions.
 - `styles.css`: Shared styling for both pages.
 - `script.js`: Scroll gate, user input handling, action tracking, and endpoint request.
+- `apps-script/Code.gs`: Google Apps Script backend for appending tracking rows to Google Sheets.
 
 ## Tracking placeholder
 Update `TRACKING_ENDPOINT_URL` in `script.js` with your Google Apps Script Web App URL.
