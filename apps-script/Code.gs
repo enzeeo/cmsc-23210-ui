@@ -1,5 +1,4 @@
 const WORKSHEET_NAME = "Sheet1";
-const TRACKING_CONDITION_LABEL = "control";
 
 function doPost(event) {
   const lock = LockService.getScriptLock();
@@ -20,7 +19,7 @@ function doPost(event) {
 
     const typedName = getSafeString(requestData.typedName);
     const selectedAction = getSafeString(requestData.selectedAction);
-    const condition = TRACKING_CONDITION_LABEL;
+    const condition = getSafeString(requestData.condition);
     const pressedAtIsoTimestamp = getSafeString(requestData.pressedAtIsoTimestamp);
     const timeFromPageOpenToSelectionMilliseconds = getSafeString(
       requestData.timeFromPageOpenToSelectionMilliseconds

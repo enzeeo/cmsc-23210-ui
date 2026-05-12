@@ -8,7 +8,7 @@ const PDFJS_WORKER_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174
 const TERMS_DOCUMENT_SCROLL_HEIGHT_OFFSET = 4;
 const TERMS_DOCUMENT_RENDER_DELAY_IN_MILLISECONDS = 150;
 const TRACKING_SESSION_STORAGE_KEY = "termsTrackingSessionState";
-const TRACKING_CONDITION_LABEL = "control";
+const DEFAULT_TRACKING_CONDITION_LABEL = "control";
 
 let trackingSessionState = null;
 let termsDocumentLoadingPromise = null;
@@ -509,10 +509,21 @@ function buildTrackingPayload(typedName, selectedAction) {
   return {
     typedName,
     selectedAction,
-    condition: TRACKING_CONDITION_LABEL,
+    condition: getTrackingConditionLabel(),
     pressedAtIsoTimestamp: new Date(buttonPressedAtMilliseconds).toISOString(),
     timeFromPageOpenToSelectionMilliseconds: trackedActiveMillisecondsAtSelection
   };
+}
+
+function getTrackingConditionLabel() {
+  const currentPageUrl = new URL(window.location.href);
+  const conditionFromUrl = currentPageUrl.searchParams.get("condition");
+
+  if (conditionFromUrl === null || conditionFromUrl.length === 0) {
+    return DEFAULT_TRACKING_CONDITION_LABEL;
+  }
+
+  return conditionFromUrl;
 }
 
 function buildTrackingEndpointUrl(payload) {
@@ -536,8 +547,17 @@ function sendTrackingData(payload) {
     String(payload.timeFromPageOpenToSelectionMilliseconds)
   );
 
+  if (navigator.sendBeacon) {
+    const trackingRequestWasQueued = navigator.sendBeacon(trackingEndpointUrl, formData);
+
+    if (trackingRequestWasQueued) {
+      return Promise.resolve();
+    }
+  }
+
   return fetch(trackingEndpointUrl, {
     method: "POST",
+    mode: "no-cors",
     body: formData,
     keepalive: true
   });
@@ -559,7 +579,7 @@ async function handleButtonSelection(selectedAction, elements) {
   elements.nameInput.disabled = true;
 
   try {
-    sendTrackingData(trackingPayload);
+    await sendTrackingData(trackingPayload);
   } catch (error) {
     showMessage(elements, "Tracking endpoint is unavailable right now. Continuing to next page.");
   }
