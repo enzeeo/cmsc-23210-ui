@@ -1,4 +1,4 @@
-const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz2BCyaOHCzEgYg69aBvDM7jusIlzZjAlGkTmMoY7WqmbGQ9ML1q0Ga0k9pre7QjikuvA/exec";
+const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyq4MmASdPC2fqYr2w9O-HYoWl4vAqHu3gtGjAjMZfgK3U4ORN1WlHbIGo_qxSSqDRjPw/exec";
 const SCROLL_TOLERANCE_IN_PIXELS = 2;
 const SMALL_PLANET_LAYER_COUNT = 5;
 const DUST_PLANET_LAYER_COUNT = 50;
@@ -56,7 +56,7 @@ function enableConsentControls(elements) {
   elements.nameInput.disabled = false;
   elements.acceptButton.disabled = false;
   elements.rejectButton.disabled = false;
-  elements.statusMessage.textContent = "You can now enter your name and choose Accept or Reject.";
+  elements.statusMessage.textContent = "";
 }
 
 function disableConsentControls(elements) {
