@@ -515,8 +515,17 @@ function buildTrackingPayload(typedName, selectedAction) {
   };
 }
 
+function buildTrackingEndpointUrl(payload) {
+  const trackingEndpointUrl = new URL(TRACKING_ENDPOINT_URL);
+
+  trackingEndpointUrl.searchParams.set("condition", payload.condition);
+
+  return trackingEndpointUrl.toString();
+}
+
 function sendTrackingData(payload) {
   const formData = new URLSearchParams();
+  const trackingEndpointUrl = buildTrackingEndpointUrl(payload);
 
   formData.append("typedName", payload.typedName);
   formData.append("selectedAction", payload.selectedAction);
@@ -527,7 +536,7 @@ function sendTrackingData(payload) {
     String(payload.timeFromPageOpenToSelectionMilliseconds)
   );
 
-  return fetch(TRACKING_ENDPOINT_URL, {
+  return fetch(trackingEndpointUrl, {
     method: "POST",
     body: formData,
     keepalive: true
