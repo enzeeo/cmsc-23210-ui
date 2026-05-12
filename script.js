@@ -1,4 +1,4 @@
-const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwwkyc8N0N--qod2lZNL7epFmSaII0MzEH6_hLaOMkVej-sh-moeAUNyUFiIgBwcN84cw/exec";
+const TRACKING_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyZ9F68Z105NEReE9FmxOKdd6zGXsRSQ_JkRhwq-6wOOICyoK88sSAddIc9c-u2IubzhQ/exec";
 const SCROLL_TOLERANCE_IN_PIXELS = 2;
 const SMALL_PLANET_LAYER_COUNT = 5;
 const DUST_PLANET_LAYER_COUNT = 50;
@@ -8,7 +8,7 @@ const PDFJS_WORKER_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174
 const TERMS_DOCUMENT_SCROLL_HEIGHT_OFFSET = 4;
 const TERMS_DOCUMENT_RENDER_DELAY_IN_MILLISECONDS = 150;
 const TRACKING_SESSION_STORAGE_KEY = "termsTrackingSessionState";
-const DEFAULT_TRACKING_CONDITION_LABEL = "control";
+const TRACKING_CONDITION_LABEL = "control";
 
 let trackingSessionState = null;
 let termsDocumentLoadingPromise = null;
@@ -509,21 +509,10 @@ function buildTrackingPayload(typedName, selectedAction) {
   return {
     typedName,
     selectedAction,
-    condition: getTrackingConditionLabel(),
+    condition: TRACKING_CONDITION_LABEL,
     pressedAtIsoTimestamp: new Date(buttonPressedAtMilliseconds).toISOString(),
     timeFromPageOpenToSelectionMilliseconds: trackedActiveMillisecondsAtSelection
   };
-}
-
-function getTrackingConditionLabel() {
-  const currentPageUrl = new URL(window.location.href);
-  const conditionFromUrl = currentPageUrl.searchParams.get("condition");
-
-  if (conditionFromUrl === null || conditionFromUrl.length === 0) {
-    return DEFAULT_TRACKING_CONDITION_LABEL;
-  }
-
-  return conditionFromUrl;
 }
 
 function buildTrackingEndpointUrl(payload) {
